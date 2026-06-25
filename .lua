@@ -939,8 +939,28 @@ end
 					TabList.ZIndex = 2
 				end)
 			
-			-- Rendre l'image visible derrière le chargement
-			local LoadingBackgroundImage = BackgroundImage:Clone()
+				-- Ajouter une bordure blanche avec effet néon
+				local MainStroke = Instance.new("UIStroke")
+				MainStroke.Name = "NeonBorder"
+				MainStroke.Parent = Main
+				MainStroke.Color = Color3.fromRGB(255, 255, 255)
+				MainStroke.Thickness = 1
+				MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				MainStroke.Transparency = 0.5
+				
+				local function UpdateNeon(isHovering)
+					if isHovering then
+						TweenService:Create(MainStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Thickness = 2, Transparency = 0}):Play()
+					else
+						TweenService:Create(MainStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Thickness = 1, Transparency = 0.5}):Play()
+					end
+				end
+				
+				Main.MouseEnter:Connect(function() UpdateNeon(true) end)
+				Main.MouseLeave:Connect(function() UpdateNeon(false) end)
+
+				-- Rendre l'image visible derrière le chargement
+				local LoadingBackgroundImage = BackgroundImage:Clone()
 			LoadingBackgroundImage.Parent = LoadingFrame
 			LoadingBackgroundImage.ZIndex = 1
 			
