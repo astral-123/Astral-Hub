@@ -1734,6 +1734,26 @@ local function createSettings(window)
 	-- Create sections and elements
 	for categoryName, settingCategory in pairs(settingsTable) do
 		newTab:CreateSection(categoryName)
+		
+		if categoryName == "System" then
+			newTab:CreateButton({
+				Name = "Activate Anti-AFK",
+				Callback = function()
+					RayfieldLibrary:Notify({
+						Title = "Anti-AFK",
+						Content = "Anti-AFK has been activated!",
+						Duration = 5,
+						Image = 4483362458
+					})
+
+					local bb = game:service("VirtualUser")
+					game:service("Players").LocalPlayer.Idled:connect(function()
+						bb:CaptureController()
+						bb:ClickButton2(Vector2.new())
+					end)
+				end,
+			})
+		end
 
 		for settingName, setting in pairs(settingCategory) do
 			if setting.Type == 'input' then
@@ -3889,26 +3909,25 @@ Topbar.Search.MouseButton1Click:Connect(function()
 	end)
 end)
 
-if Topbar:FindFirstChild('Settings') then
-	local AntiAFKEnabled = false
-	Topbar.Settings.MouseButton1Click:Connect(function()
-		if AntiAFKEnabled then return end
-		AntiAFKEnabled = true
-		
-		RayfieldLibrary:Notify({
-			Title = "Anti-AFK",
-			Content = "Anti-AFK has been activated!",
-			Duration = 5,
-			Image = 4483362458
-		})
+	if Topbar:FindFirstChild('Settings') then
+		Topbar.Settings.MouseButton1Click:Connect(function()
+			task.spawn(function()
+				for _, OtherTabButton in ipairs(TabList:GetChildren()) do
+					if OtherTabButton.Name ~= "Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton.Name ~= "Placeholder" then
+						TweenService:Create(OtherTabButton, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.TabBackground}):Play()
+						TweenService:Create(OtherTabButton.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextColor3 = SelectedTheme.TabTextColor}):Play()
+						TweenService:Create(OtherTabButton.Image, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {ImageColor3 = SelectedTheme.TabTextColor}):Play()
+						TweenService:Create(OtherTabButton, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.7}):Play()
+						TweenService:Create(OtherTabButton.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0.2}):Play()
+						TweenService:Create(OtherTabButton.Image, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {ImageTransparency = 0.2}):Play()
+						TweenService:Create(OtherTabButton.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+					end
+				end
 
-		local bb = game:service("VirtualUser")
-		game:service("Players").LocalPlayer.Idled:connect(function()
-			bb:CaptureController()
-			bb:ClickButton2(Vector2.new())
+				Elements.UIPageLayout:JumpTo(Elements['Rayfield Settings'])
+			end)
 		end)
-	end)
-end
+	end
 
 
 Topbar.Hide.MouseButton1Click:Connect(function()
