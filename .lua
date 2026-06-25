@@ -924,12 +924,18 @@ end
 			UICorner.CornerRadius = UDim.new(0, 10) -- Bords arrondis
 			UICorner.Parent = BackgroundImage
 			
-			-- Rendre la Topbar transparente pour voir l'image derrière
-			Topbar.BackgroundTransparency = 1
-			Topbar.CornerRepair.BackgroundTransparency = 1
-			
-			-- S'assurer que le gris du Main est derrière l'image
-			Main.ZIndex = 0
+				-- Rendre la Topbar transparente pour voir l'image derrière
+				Topbar.BackgroundTransparency = 1
+				if Topbar:FindFirstChild("CornerRepair") then
+					Topbar.CornerRepair.BackgroundTransparency = 1
+				end
+				
+				-- S'assurer que le gris du Main est derrière l'image
+				Main.ZIndex = 0
+				BackgroundImage.ZIndex = 1
+				Topbar.ZIndex = 2
+				Elements.ZIndex = 2
+				TabList.ZIndex = 2
 			
 			-- Rendre l'image visible derrière le chargement
 			local LoadingBackgroundImage = BackgroundImage:Clone()
