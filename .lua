@@ -921,14 +921,14 @@ end
 		BackgroundImage.BackgroundTransparency = 1
 		BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
 		BackgroundImage.Image = "rbxassetid://85276739522110"
-		BackgroundImage.ZIndex = 1 -- Devant le fond gris (Main)
+		BackgroundImage.ZIndex = 1 -- Devant le fond gris
 		BackgroundImage.ImageTransparency = 0.7
 		
 		local UICorner = Instance.new("UICorner")
-		UICorner.CornerRadius = UDim.new(0, 10) -- Meilleur arrondi
+		UICorner.CornerRadius = UDim.new(0, 10) -- Bords arrondis
 		UICorner.Parent = BackgroundImage
 		
-		-- S'assurer que le fond gris du Main est derrière l'image
+		-- S'assurer que le gris du Main est derrière l'image
 		Main.ZIndex = 0
 		
 		-- Rendre l'image visible derrière le chargement
@@ -959,7 +959,7 @@ end
 		ResizeHandle.Position = UDim2.new(1, -5, 1, -5)
 		ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
 		ResizeHandle.BackgroundTransparency = 1
-		ResizeHandle.Image = "rbxassetid://11419734347" -- Une icône de redimensionnement
+		ResizeHandle.Image = "rbxassetid://10137941941" -- L'icône à 3 traits (redimensionnement)
 		ResizeHandle.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		ResizeHandle.ImageTransparency = 0
 		ResizeHandle.ZIndex = 10
