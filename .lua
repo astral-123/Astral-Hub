@@ -924,6 +924,10 @@ end
 			UICorner.CornerRadius = UDim.new(0, 10) -- Bords arrondis
 			UICorner.Parent = BackgroundImage
 			
+			-- Rendre la Topbar transparente pour voir l'image derrière
+			Topbar.BackgroundTransparency = 1
+			Topbar.CornerRepair.BackgroundTransparency = 1
+			
 			-- S'assurer que le gris du Main est derrière l'image
 			Main.ZIndex = 0
 			
@@ -3878,24 +3882,24 @@ Topbar.Search.MouseButton1Click:Connect(function()
 end)
 
 if Topbar:FindFirstChild('Settings') then
+	local AntiAFKEnabled = false
 	Topbar.Settings.MouseButton1Click:Connect(function()
-		task.spawn(function()
-			for _, OtherTabButton in ipairs(TabList:GetChildren()) do
-				if OtherTabButton.Name ~= "Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton.Name ~= "Placeholder" then
-					TweenService:Create(OtherTabButton, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.TabBackground}):Play()
-					TweenService:Create(OtherTabButton.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextColor3 = SelectedTheme.TabTextColor}):Play()
-					TweenService:Create(OtherTabButton.Image, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {ImageColor3 = SelectedTheme.TabTextColor}):Play()
-					TweenService:Create(OtherTabButton, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.7}):Play()
-					TweenService:Create(OtherTabButton.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0.2}):Play()
-					TweenService:Create(OtherTabButton.Image, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {ImageTransparency = 0.2}):Play()
-					TweenService:Create(OtherTabButton.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-			end
+		if AntiAFKEnabled then return end
+		AntiAFKEnabled = true
+		
+		RayfieldLibrary:Notify({
+			Title = "Anti-AFK",
+			Content = "Anti-AFK has been activated!",
+			Duration = 5,
+			Image = 4483362458
+		})
 
-			Elements.UIPageLayout:JumpTo(Elements['Rayfield Settings'])
+		local bb = game:service("VirtualUser")
+		game:service("Players").LocalPlayer.Idled:connect(function()
+			bb:CaptureController()
+			bb:ClickButton2(Vector2.new())
 		end)
 	end)
-
 end
 
 
