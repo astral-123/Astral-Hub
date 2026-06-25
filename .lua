@@ -319,7 +319,7 @@ if debugX then
 	warn('Moving on to continue initialisation')
 end
 
-local ElementTransparency = 0.3
+local ElementTransparency = 0.7
 
 local RayfieldLibrary = {
 	Flags = {},
@@ -914,11 +914,14 @@ end
 		BackgroundImage.Name = "BackgroundImage"
 		BackgroundImage.Parent = Main
 		BackgroundImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		BackgroundImage.BackgroundTransparency = 1
+		BackgroundImage.BackgroundTransparency = 0.3
 		BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
 		BackgroundImage.Image = "rbxassetid://85276739522110"
 		BackgroundImage.ZIndex = 0
-		BackgroundImage.ImageTransparency = 0
+		BackgroundImage.ImageTransparency = 0.7
+			local UICorner = Instance.new("UICorner")
+			UICorner.CornerRadius = UDim.new(0, 8) -- Adjust radius as needed
+			UICorner.Parent = BackgroundImage
 	
 		ResizeHandle = Instance.new("ImageButton")
 		ResizeHandle.Name = "ResizeHandle"
@@ -929,6 +932,7 @@ end
 		ResizeHandle.BackgroundTransparency = 1
 		ResizeHandle.Image = "rbxassetid://11419734347" -- Une icône de redimensionnement
 		ResizeHandle.ImageColor3 = Color3.fromRGB(255, 255, 255)
+			ResizeHandle.ImageTransparency = 0
 		ResizeHandle.ZIndex = 10
 
 	local Resizing = false
