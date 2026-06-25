@@ -914,14 +914,36 @@ end
 		BackgroundImage.Name = "BackgroundImage"
 		BackgroundImage.Parent = Main
 		BackgroundImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		BackgroundImage.BackgroundTransparency = 0.3
+		BackgroundImage.BackgroundTransparency = 1
 		BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
 		BackgroundImage.Image = "rbxassetid://85276739522110"
 		BackgroundImage.ZIndex = 0
 		BackgroundImage.ImageTransparency = 0.7
-			local UICorner = Instance.new("UICorner")
-			UICorner.CornerRadius = UDim.new(0, 8) -- Adjust radius as needed
-			UICorner.Parent = BackgroundImage
+		
+		local UICorner = Instance.new("UICorner")
+		UICorner.CornerRadius = UDim.new(0, 8) -- Bords arrondis
+		UICorner.Parent = BackgroundImage
+		
+		-- Rendre l'image visible derrière le chargement
+		local LoadingBackgroundImage = BackgroundImage:Clone()
+		LoadingBackgroundImage.Parent = LoadingFrame
+		LoadingBackgroundImage.ZIndex = 0
+		
+		-- S'assurer que le gris du Main est derrière l'image
+		Main.ZIndex = -1
+		
+		-- Déplacer les textes du LoadingFrame en bas à droite
+		LoadingFrame.Title.AnchorPoint = Vector2.new(1, 1)
+		LoadingFrame.Title.Position = UDim2.new(1, -20, 1, -40)
+		LoadingFrame.Title.TextXAlignment = Enum.TextXAlignment.Right
+		
+		LoadingFrame.Subtitle.AnchorPoint = Vector2.new(1, 1)
+		LoadingFrame.Subtitle.Position = UDim2.new(1, -20, 1, -20)
+		LoadingFrame.Subtitle.TextXAlignment = Enum.TextXAlignment.Right
+		
+		LoadingFrame.Version.AnchorPoint = Vector2.new(1, 1)
+		LoadingFrame.Version.Position = UDim2.new(1, -20, 1, -5)
+		LoadingFrame.Version.TextXAlignment = Enum.TextXAlignment.Right
 	
 		ResizeHandle = Instance.new("ImageButton")
 		ResizeHandle.Name = "ResizeHandle"
