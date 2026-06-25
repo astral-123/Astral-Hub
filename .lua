@@ -925,17 +925,19 @@ end
 			UICorner.Parent = BackgroundImage
 			
 				-- Rendre la Topbar transparente pour voir l'image derrière
-				Topbar.BackgroundTransparency = 1
-				if Topbar:FindFirstChild("CornerRepair") then
-					Topbar.CornerRepair.BackgroundTransparency = 1
-				end
-				
-				-- S'assurer que le gris du Main est derrière l'image
-				Main.ZIndex = 0
-				BackgroundImage.ZIndex = 1
-				Topbar.ZIndex = 2
-				Elements.ZIndex = 2
-				TabList.ZIndex = 2
+				pcall(function()
+					Topbar.BackgroundTransparency = 1
+					if Topbar:FindFirstChild("CornerRepair") then
+						Topbar.CornerRepair.BackgroundTransparency = 1
+					end
+					
+					-- S'assurer que le gris du Main est derrière l'image
+					Main.ZIndex = 0
+					BackgroundImage.ZIndex = 1
+					Topbar.ZIndex = 2
+					Elements.ZIndex = 2
+					TabList.ZIndex = 2
+				end)
 			
 			-- Rendre l'image visible derrière le chargement
 			local LoadingBackgroundImage = BackgroundImage:Clone()
