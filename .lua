@@ -327,8 +327,8 @@ local RayfieldLibrary = {
 		Default = {
 			TextColor = Color3.fromRGB(240, 240, 240),
 
-			Background = Color3.fromRGB(25, 25, 25),
-			Topbar = Color3.fromRGB(25, 25, 25), -- Même couleur que le fond
+			Background = Color3.fromRGB(15, 15, 15),
+			Topbar = Color3.fromRGB(15, 15, 15), -- Même couleur que le fond
 			Shadow = Color3.fromRGB(20, 20, 20),
 
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
@@ -342,7 +342,7 @@ local RayfieldLibrary = {
 
 			ElementBackground = Color3.fromRGB(35, 35, 35),
 			ElementBackgroundHover = Color3.fromRGB(40, 40, 40),
-			SecondaryElementBackground = Color3.fromRGB(25, 25, 25),
+			SecondaryElementBackground = Color3.fromRGB(15, 15, 15),
 			ElementStroke = Color3.fromRGB(50, 50, 50),
 			SecondaryElementStroke = Color3.fromRGB(40, 40, 40),
 
@@ -927,11 +927,11 @@ end
 -- Rendre la Topbar de la même couleur que le fond
 						pcall(function()
 							Topbar.BackgroundTransparency = 0
-									Topbar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+									Topbar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 									if Topbar:FindFirstChild("CornerRepair") then
 										Topbar.BackgroundTransparency = 0
 										Topbar.CornerRepair.BackgroundTransparency = 0
-										Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+										Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 									end
 					
 					-- S'assurer que le gris du Main est derrière l'image
@@ -991,31 +991,36 @@ end
 					end
 				end)
 			
--- Ajouter une bordure rotative fine
-						local MainStroke = Instance.new("UIStroke")
-						MainStroke.Name = "RotatingBorder"
-						MainStroke.Parent = Main
-						MainStroke.Color = Color3.fromRGB(255, 255, 255)
-						MainStroke.Thickness = 1
-						MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-						MainStroke.Transparency = 0.4
-						
-						local Gradient = Instance.new("UIGradient")
-						Gradient.Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0, 1),
-							NumberSequenceKeypoint.new(0.45, 1),
-							NumberSequenceKeypoint.new(0.5, 0), -- Segment visible
-							NumberSequenceKeypoint.new(0.55, 1),
-							NumberSequenceKeypoint.new(1, 1)
-						})
-						Gradient.Parent = MainStroke
-						
-						task.spawn(function()
-							while task.wait() do
-								if not Main.Parent then break end
-								Gradient.Rotation = (Gradient.Rotation + 2) % 360
-							end
-						end)
+-- Ajouter une bordure rotative fine et visible partout
+							local MainStroke = Instance.new("UIStroke")
+							MainStroke.Name = "RotatingBorder"
+							MainStroke.Parent = Main
+							MainStroke.Color = Color3.fromRGB(255, 255, 255)
+							MainStroke.Thickness = 1.5 -- Un peu plus épaisse pour être bien vue
+							MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+							MainStroke.Transparency = 0 -- Bien visible
+							
+							local Gradient = Instance.new("UIGradient")
+							Gradient.Transparency = NumberSequence.new({
+								NumberSequenceKeypoint.new(0, 1),
+								NumberSequenceKeypoint.new(0.3, 1), -- Plus de transparence avant
+								NumberSequenceKeypoint.new(0.5, 0), -- Segment visible plus large
+								NumberSequenceKeypoint.new(0.7, 1), -- Plus de transparence après
+								NumberSequenceKeypoint.new(1, 1)
+							})
+							Gradient.Parent = MainStroke
+							
+							-- S'assurer que la bordure est au-dessus de tout pour être visible en bas
+							MainStroke.Enabled = true
+							
+							task.spawn(function()
+								local rotation = 0
+								while task.wait(0.01) do
+									if not Main.Parent then break end
+									rotation = (rotation + 2) % 360
+									Gradient.Rotation = rotation
+								end
+							end)
 
 				-- Rendre l'image visible derrière le chargement
 				local LoadingBackgroundImage = BackgroundImage:Clone()
