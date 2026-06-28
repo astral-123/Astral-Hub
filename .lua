@@ -328,7 +328,7 @@ local RayfieldLibrary = {
 			TextColor = Color3.fromRGB(240, 240, 240),
 
 			Background = Color3.fromRGB(25, 25, 25),
-			Topbar = Color3.fromRGB(34, 34, 34),
+			Topbar = Color3.fromRGB(0, 0, 0), -- Changé en noir pur
 			Shadow = Color3.fromRGB(20, 20, 20),
 
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
@@ -999,70 +999,71 @@ end
 					MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					MainStroke.Transparency = 0.6
 					
-					local NeonGlow = Instance.new("Frame")
-						NeonGlow.Name = "NeonGlow"
-						NeonGlow.Parent = Main
-						NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-						NeonGlow.BackgroundTransparency = 1
-						NeonGlow.BorderSizePixel = 0
-						NeonGlow.Size = UDim2.new(0, 150, 0, 3) -- Plus grand et plus épais
-						NeonGlow.ZIndex = 5
-						
-						local NeonGradient = Instance.new("UIGradient")
-						NeonGradient.Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0, 1),
-							NumberSequenceKeypoint.new(0.5, 0), -- Plus de lumière (0 = opaque)
-							NumberSequenceKeypoint.new(1, 1)
-						})
-						NeonGradient.Parent = NeonGlow
+						local NeonGlow = Instance.new("Frame")
+							NeonGlow.Name = "NeonGlow"
+							NeonGlow.Parent = Main
+							NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							NeonGlow.BackgroundTransparency = 1
+							NeonGlow.BorderSizePixel = 0
+							NeonGlow.Size = UDim2.new(0, 150, 0, 3)
+							NeonGlow.ZIndex = 5
+							NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+							
+							local NeonGradient = Instance.new("UIGradient")
+							NeonGradient.Transparency = NumberSequence.new({
+								NumberSequenceKeypoint.new(0, 1),
+								NumberSequenceKeypoint.new(0.5, 0),
+								NumberSequenceKeypoint.new(1, 1)
+							})
+							NeonGradient.Parent = NeonGlow
 
-					RunService.RenderStepped:Connect(function()
-						local MousePos = UserInputService:GetMouseLocation()
-						local MainPos = Main.AbsolutePosition
-						local MainSize = Main.AbsoluteSize
-						
-						local RelativeX = MousePos.X - MainPos.X
-						local RelativeY = MousePos.Y - MainPos.Y
-						
-						local Margin = 10
-						local isNearEdge = false
-						
-						if RelativeX >= -Margin and RelativeX <= MainSize.X + Margin and RelativeY >= -Margin and RelativeY <= MainSize.Y + Margin then
-								if math.abs(RelativeX - MainSize.X) <= Margin then -- Bord droit
-									NeonGlow.Rotation = 90
-									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
-									NeonGlow.Position = UDim2.new(1, 0, 0, math.clamp(RelativeY, 0, MainSize.Y))
-									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+						RunService.RenderStepped:Connect(function()
+							local MousePos = UserInputService:GetMouseLocation()
+							local MainPos = Main.AbsolutePosition
+							local MainSize = Main.AbsoluteSize
+							
+							local RelativeX = MousePos.X - MainPos.X
+							local RelativeY = MousePos.Y - MainPos.Y
+							
+							local Margin = 15
+							local isNearEdge = false
+							
+							-- Calcul des distances aux bords
+							local distLeft = math.abs(RelativeX)
+							local distRight = math.abs(RelativeX - MainSize.X)
+							local distTop = math.abs(RelativeY)
+							local distBottom = math.abs(RelativeY - MainSize.Y)
+							
+							-- Trouver le bord le plus proche
+							local minDist = math.min(distLeft, distRight, distTop, distBottom)
+							
+							if RelativeX >= -Margin and RelativeX <= MainSize.X + Margin and RelativeY >= -Margin and RelativeY <= MainSize.Y + Margin then
+								if minDist <= Margin then
 									isNearEdge = true
-								elseif math.abs(RelativeX) <= Margin then -- Bord gauche
-									NeonGlow.Rotation = 90
-									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
-									NeonGlow.Position = UDim2.new(0, 0, 0, math.clamp(RelativeY, 0, MainSize.Y))
-									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-									isNearEdge = true
-								elseif math.abs(RelativeY) <= Margin then -- Bord haut
-									NeonGlow.Rotation = 0
-									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
-									NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 0, MainSize.X), 0, 0)
-									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-									isNearEdge = true
-								elseif math.abs(RelativeY - MainSize.Y) <= Margin then -- Bord bas
-									NeonGlow.Rotation = 0
-									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
-									NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 0, MainSize.X), 1, 0)
-									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-									isNearEdge = true
+									if minDist == distLeft then -- Bord gauche
+										NeonGlow.Rotation = 90
+										NeonGlow.Position = UDim2.new(0, 0, 0, RelativeY)
+									elseif minDist == distRight then -- Bord droit
+										NeonGlow.Rotation = 90
+										NeonGlow.Position = UDim2.new(1, 0, 0, RelativeY)
+									elseif minDist == distTop then -- Bord haut
+										NeonGlow.Rotation = 0
+										NeonGlow.Position = UDim2.new(0, RelativeX, 0, 0)
+									elseif minDist == distBottom then -- Bord bas
+										NeonGlow.Rotation = 0
+										NeonGlow.Position = UDim2.new(0, RelativeX, 1, 0)
+									end
 								end
-						end
-						
-						if isNearEdge then
-							TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 0.3}):Play()
-							TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(150, 150, 150), Transparency = 0.4}):Play()
-						else
-							TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-							TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100), Transparency = 0.6}):Play()
-						end
-					end)
+							end
+							
+							if isNearEdge then
+								TweenService:Create(NeonGlow, TweenInfo.new(0.1), {BackgroundTransparency = 0.2}):Play()
+								TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(200, 200, 200), Transparency = 0.3}):Play()
+							else
+								TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+								TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100), Transparency = 0.6}):Play()
+							end
+						end)
 
 				-- Rendre l'image visible derrière le chargement
 				local LoadingBackgroundImage = BackgroundImage:Clone()
