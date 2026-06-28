@@ -924,12 +924,14 @@ end
 			UICorner.CornerRadius = UDim.new(0, 10) -- Bords arrondis
 			UICorner.Parent = BackgroundImage
 			
-				-- Rendre la Topbar transparente pour voir l'image derrière
-				pcall(function()
-					Topbar.BackgroundTransparency = 1
-					if Topbar:FindFirstChild("CornerRepair") then
-						Topbar.CornerRepair.BackgroundTransparency = 1
-					end
+				-- Rendre la Topbar noire et transparente
+					pcall(function()
+						Topbar.BackgroundTransparency = 0.5 -- Un peu de transparence mais bien noire
+						Topbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Noir
+						if Topbar:FindFirstChild("CornerRepair") then
+							Topbar.CornerRepair.BackgroundTransparency = 0.5
+							Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+						end
 					
 					-- S'assurer que le gris du Main est derrière l'image
 					Main.ZIndex = 0
@@ -937,6 +939,55 @@ end
 					Topbar.ZIndex = 2
 					Elements.ZIndex = 2
 					TabList.ZIndex = 2
+				end)
+
+				-- Effet de Neige
+				local SnowContainer = Instance.new("Frame")
+				SnowContainer.Name = "SnowContainer"
+				SnowContainer.Parent = Main
+				SnowContainer.Size = UDim2.new(1, 0, 1, 0)
+				SnowContainer.BackgroundTransparency = 1
+				SnowContainer.ZIndex = 1 -- Juste au dessus de l'image de fond
+				SnowContainer.ClipsDescendants = true
+
+				local function CreateFlake()
+					local Flake = Instance.new("Frame")
+					Flake.Name = "Snowflake"
+					Flake.Parent = SnowContainer
+					Flake.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					Flake.BorderSizePixel = 0
+					local size = math.random(2, 4)
+					Flake.Size = UDim2.new(0, size, 0, size)
+					
+					local UICorner = Instance.new("UICorner")
+					UICorner.CornerRadius = UDim.new(1, 0)
+					UICorner.Parent = Flake
+					
+					local startX = math.random()
+					Flake.Position = UDim2.new(startX, 0, -0.1, 0)
+					Flake.BackgroundTransparency = math.random(2, 5) / 10
+					
+					local duration = math.random(3, 7)
+					local drift = (math.random() - 0.5) * 0.2
+					
+					local tween = TweenService:Create(Flake, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+						Position = UDim2.new(startX + drift, 0, 1.1, 0)
+					})
+					
+					tween:Play()
+					tween.Completed:Connect(function()
+						Flake:Destroy()
+					end)
+				end
+
+				task.spawn(function()
+					while task.wait(0.2) do
+						if Main.Parent then
+							CreateFlake()
+						else
+							break
+						end
+					end
 				end)
 			
 					-- Ajouter une bordure grise avec effet néon localisé
@@ -949,21 +1000,21 @@ end
 					MainStroke.Transparency = 0.6
 					
 					local NeonGlow = Instance.new("Frame")
-					NeonGlow.Name = "NeonGlow"
-					NeonGlow.Parent = Main
-					NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					NeonGlow.BackgroundTransparency = 1
-					NeonGlow.BorderSizePixel = 0
-					NeonGlow.Size = UDim2.new(0, 100, 0, 2)
-					NeonGlow.ZIndex = 5
-					
-					local NeonGradient = Instance.new("UIGradient")
-					NeonGradient.Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 1),
-						NumberSequenceKeypoint.new(0.5, 0.2),
-						NumberSequenceKeypoint.new(1, 1)
-					})
-					NeonGradient.Parent = NeonGlow
+						NeonGlow.Name = "NeonGlow"
+						NeonGlow.Parent = Main
+						NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						NeonGlow.BackgroundTransparency = 1
+						NeonGlow.BorderSizePixel = 0
+						NeonGlow.Size = UDim2.new(0, 150, 0, 3) -- Plus grand et plus épais
+						NeonGlow.ZIndex = 5
+						
+						local NeonGradient = Instance.new("UIGradient")
+						NeonGradient.Transparency = NumberSequence.new({
+							NumberSequenceKeypoint.new(0, 1),
+							NumberSequenceKeypoint.new(0.5, 0), -- Plus de lumière (0 = opaque)
+							NumberSequenceKeypoint.new(1, 1)
+						})
+						NeonGradient.Parent = NeonGlow
 
 					RunService.RenderStepped:Connect(function()
 						local MousePos = UserInputService:GetMouseLocation()
@@ -977,31 +1028,31 @@ end
 						local isNearEdge = false
 						
 						if RelativeX >= -Margin and RelativeX <= MainSize.X + Margin and RelativeY >= -Margin and RelativeY <= MainSize.Y + Margin then
-							if math.abs(RelativeX - MainSize.X) <= Margin then -- Bord droit
-								NeonGlow.Rotation = 90
-								NeonGlow.Size = UDim2.new(0, 100, 0, 2)
-								NeonGlow.Position = UDim2.new(1, -1, 0, math.clamp(RelativeY, 50, MainSize.Y - 50))
-								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-								isNearEdge = true
-							elseif math.abs(RelativeX) <= Margin then -- Bord gauche
-								NeonGlow.Rotation = 90
-								NeonGlow.Size = UDim2.new(0, 100, 0, 2)
-								NeonGlow.Position = UDim2.new(0, 1, 0, math.clamp(RelativeY, 50, MainSize.Y - 50))
-								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-								isNearEdge = true
-							elseif math.abs(RelativeY) <= Margin then -- Bord haut
-								NeonGlow.Rotation = 0
-								NeonGlow.Size = UDim2.new(0, 100, 0, 2)
-								NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 50, MainSize.X - 50), 0, 1)
-								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-								isNearEdge = true
-							elseif math.abs(RelativeY - MainSize.Y) <= Margin then -- Bord bas
-								NeonGlow.Rotation = 0
-								NeonGlow.Size = UDim2.new(0, 100, 0, 2)
-								NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 50, MainSize.X - 50), 1, -1)
-								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-								isNearEdge = true
-							end
+								if math.abs(RelativeX - MainSize.X) <= Margin then -- Bord droit
+									NeonGlow.Rotation = 90
+									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
+									NeonGlow.Position = UDim2.new(1, 0, 0, math.clamp(RelativeY, 0, MainSize.Y))
+									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+									isNearEdge = true
+								elseif math.abs(RelativeX) <= Margin then -- Bord gauche
+									NeonGlow.Rotation = 90
+									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
+									NeonGlow.Position = UDim2.new(0, 0, 0, math.clamp(RelativeY, 0, MainSize.Y))
+									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+									isNearEdge = true
+								elseif math.abs(RelativeY) <= Margin then -- Bord haut
+									NeonGlow.Rotation = 0
+									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
+									NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 0, MainSize.X), 0, 0)
+									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+									isNearEdge = true
+								elseif math.abs(RelativeY - MainSize.Y) <= Margin then -- Bord bas
+									NeonGlow.Rotation = 0
+									NeonGlow.Size = UDim2.new(0, 150, 0, 3)
+									NeonGlow.Position = UDim2.new(0, math.clamp(RelativeX, 0, MainSize.X), 1, 0)
+									NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+									isNearEdge = true
+								end
 						end
 						
 						if isNearEdge then
@@ -2290,19 +2341,26 @@ function RayfieldLibrary:CreateWindow(Settings)
 		TabButton.Visible = not Ext or false
 
 		-- Create Elements Page
-		local TabPage = Elements.Template:Clone()
-		TabPage.Name = Name
-		TabPage.Visible = true
+			local TabPage = Elements.Template:Clone()
+			TabPage.Name = Name
+			TabPage.Visible = true
 
-		TabPage.LayoutOrder = Ext and 10000 or #Elements:GetChildren()
+			TabPage.LayoutOrder = Ext and 10000 or #Elements:GetChildren()
 
-		for _, TemplateElement in ipairs(TabPage:GetChildren()) do
-			if TemplateElement.ClassName == "Frame" and TemplateElement.Name ~= "Placeholder" then
-				TemplateElement:Destroy()
+			for _, TemplateElement in ipairs(TabPage:GetChildren()) do
+				if TemplateElement.ClassName == "Frame" and TemplateElement.Name ~= "Placeholder" then
+					TemplateElement:Destroy()
+				end
 			end
-		end
 
-		TabPage.Parent = Elements
+			TabPage.Parent = Elements
+			
+			-- Activer la scrollbar pour les onglets
+			TabPage.ScrollBarThickness = 3
+			TabPage.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+			TabPage.ScrollBarImageTransparency = 0.5
+			TabPage.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+			TabPage.CanvasSize = UDim2.new(0, 0, 0, 0) -- Sera géré par l'UIListLayout automatique
 		if not FirstTab and not Ext then
 			Elements.UIPageLayout.Animated = false
 			Elements.UIPageLayout:JumpTo(TabPage)
