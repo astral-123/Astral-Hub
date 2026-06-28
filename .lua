@@ -328,7 +328,7 @@ local RayfieldLibrary = {
 			TextColor = Color3.fromRGB(240, 240, 240),
 
 			Background = Color3.fromRGB(25, 25, 25),
-			Topbar = Color3.fromRGB(35, 35, 35), -- Plus gris pour correspondre au fond
+			Topbar = Color3.fromRGB(25, 25, 25), -- Même couleur que le fond
 			Shadow = Color3.fromRGB(20, 20, 20),
 
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
@@ -924,15 +924,15 @@ end
 			UICorner.CornerRadius = UDim.new(0, 10) -- Bords arrondis
 			UICorner.Parent = BackgroundImage
 			
-				-- Rendre la Topbar noire et transparente
-					pcall(function()
-						Topbar.BackgroundTransparency = 0.5 -- Un peu de transparence mais bien noire
-								Topbar.BackgroundColor3 = Color3.fromRGB(35, 35, 35) -- Plus gris
-								if Topbar:FindFirstChild("CornerRepair") then
-									Topbar.BackgroundTransparency = 0.5
-									Topbar.CornerRepair.BackgroundTransparency = 0.5
-									Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-								end
+-- Rendre la Topbar de la même couleur que le fond
+						pcall(function()
+							Topbar.BackgroundTransparency = 0
+									Topbar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+									if Topbar:FindFirstChild("CornerRepair") then
+										Topbar.BackgroundTransparency = 0
+										Topbar.CornerRepair.BackgroundTransparency = 0
+										Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+									end
 					
 					-- S'assurer que le gris du Main est derrière l'image
 					Main.ZIndex = 0
@@ -991,95 +991,31 @@ end
 					end
 				end)
 			
-					-- Ajouter une bordure grise avec effet néon localisé
-					local MainStroke = Instance.new("UIStroke")
-					MainStroke.Name = "NeonBorder"
-					MainStroke.Parent = Main
-					MainStroke.Color = Color3.fromRGB(100, 100, 100) -- Gris
-					MainStroke.Thickness = 1
-					MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-					MainStroke.Transparency = 0.6
-					
-							local NeonGlow = Instance.new("Frame")
-								NeonGlow.Name = "NeonGlow"
-								NeonGlow.Parent = Main
-								NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-								NeonGlow.BackgroundTransparency = 1
-								NeonGlow.BorderSizePixel = 0
-								NeonGlow.Size = UDim2.new(0, 150, 0, 5) -- Un peu plus épais pour mieux voir
-								NeonGlow.ZIndex = 5
-								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-								
-								local NeonGradient = Instance.new("UIGradient")
-								NeonGradient.Transparency = NumberSequence.new({
-									NumberSequenceKeypoint.new(0, 1),
-									NumberSequenceKeypoint.new(0.5, 0), -- Centre ultra-lumineux
-									NumberSequenceKeypoint.new(1, 1)
-								})
-								NeonGradient.Parent = NeonGlow
-
-							RunService.RenderStepped:Connect(function()
-								local MousePos = UserInputService:GetMouseLocation()
-								local MainPos = Main.AbsolutePosition
-								local MainSize = Main.AbsoluteSize
-								
-								-- Coordonnées relatives précises
-								local RelativeX = MousePos.X - MainPos.X
-								local RelativeY = MousePos.Y - MainPos.Y
-								
-								local DetectionRange = 30 -- Zone de détection plus large pour plus de réactivité
-								local CornerRadius = 12
-								local isNearEdge = false
-								
-								-- Calcul des distances aux bords
-								local dL = RelativeX
-								local dR = MainSize.X - RelativeX
-								local dT = RelativeY
-								local dB = MainSize.Y - RelativeY
-								
-								-- On vérifie si la souris est assez proche d'un des 4 bords
-								if (dL > -DetectionRange and dL < DetectionRange) or 
-								   (dR > -DetectionRange and dR < DetectionRange) or 
-								   (dT > -DetectionRange and dT < DetectionRange) or 
-								   (dB > -DetectionRange and dB < DetectionRange) then
-									
-									isNearEdge = true
-									
-									-- Projection du point sur le rectangle pour un suivi parfait
-									local targetX = math.clamp(RelativeX, 0, MainSize.X)
-									local targetY = math.clamp(RelativeY, 0, MainSize.Y)
-									
-									-- Détermination du bord le plus proche pour l'orientation
-									local minDist = math.min(math.abs(dL), math.abs(dR), math.abs(dT), math.abs(dB))
-									
-									-- Positionnement du centre de la lumière EXACTEMENT sur la projection du curseur
-									NeonGlow.Position = UDim2.new(0, targetX, 0, targetY)
-									
-									-- Rotation fluide pour suivre le contour
-									if (targetX < CornerRadius or targetX > MainSize.X - CornerRadius) and (targetY < CornerRadius or targetY > MainSize.Y - CornerRadius) then
-										-- On est dans un coin : rotation progressive pour l'effet arrondi
-										local cx = (targetX < CornerRadius) and CornerRadius or (MainSize.X - CornerRadius)
-										local cy = (targetY < CornerRadius) and CornerRadius or (MainSize.Y - CornerRadius)
-										local angle = math.atan2(targetY - cy, targetX - cx)
-										NeonGlow.Rotation = math.deg(angle) + 90
-									else
-										-- On est sur un bord droit : rotation fixe
-										if minDist == math.abs(dL) or minDist == math.abs(dR) then
-											NeonGlow.Rotation = 90
-										else
-											NeonGlow.Rotation = 0
-										end
-									end
-								end
-								
-								if isNearEdge then
-									TweenService:Create(NeonGlow, TweenInfo.new(0.05), {BackgroundTransparency = 0.15}):Play()
-									TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(220, 220, 220), Transparency = 0.2}):Play()
-								else
-									TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-									TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100), Transparency = 0.6}):Play()
-								end
-							end)
+-- Ajouter une bordure rotative fine
+						local MainStroke = Instance.new("UIStroke")
+						MainStroke.Name = "RotatingBorder"
+						MainStroke.Parent = Main
+						MainStroke.Color = Color3.fromRGB(255, 255, 255)
+						MainStroke.Thickness = 1
+						MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+						MainStroke.Transparency = 0.4
+						
+						local Gradient = Instance.new("UIGradient")
+						Gradient.Transparency = NumberSequence.new({
+							NumberSequenceKeypoint.new(0, 1),
+							NumberSequenceKeypoint.new(0.45, 1),
+							NumberSequenceKeypoint.new(0.5, 0), -- Segment visible
+							NumberSequenceKeypoint.new(0.55, 1),
+							NumberSequenceKeypoint.new(1, 1)
+						})
+						Gradient.Parent = MainStroke
+						
+						task.spawn(function()
+							while task.wait() do
+								if not Main.Parent then break end
+								Gradient.Rotation = (Gradient.Rotation + 2) % 360
+							end
+						end)
 
 				-- Rendre l'image visible derrière le chargement
 				local LoadingBackgroundImage = BackgroundImage:Clone()
@@ -1170,15 +1106,15 @@ local keybindConnections = {} -- For storing keybind connections to disconnect w
 local SelectedTheme = RayfieldLibrary.Theme.Default
 
 local function ChangeTheme(Theme)
-	if typeof(Theme) == 'string' then
-		SelectedTheme = RayfieldLibrary.Theme[Theme]
-	elseif typeof(Theme) == 'table' then
-		SelectedTheme = Theme
-	end
-
-	Rayfield.Main.BackgroundColor3 = SelectedTheme.Background
-	Rayfield.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
-	Rayfield.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Topbar
+		if typeof(Theme) == 'string' then
+			SelectedTheme = RayfieldLibrary.Theme[Theme]
+		elseif typeof(Theme) == 'table' then
+			SelectedTheme = Theme
+		end
+	
+		Rayfield.Main.BackgroundColor3 = SelectedTheme.Background
+		Rayfield.Main.Topbar.BackgroundColor3 = SelectedTheme.Background
+		Rayfield.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Background
 	Rayfield.Main.Shadow.Image.ImageColor3 = SelectedTheme.Shadow
 
 	Rayfield.Main.Topbar.ChangeSize.ImageColor3 = SelectedTheme.TextColor
