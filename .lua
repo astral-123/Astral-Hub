@@ -328,7 +328,7 @@ local RayfieldLibrary = {
 			TextColor = Color3.fromRGB(240, 240, 240),
 
 			Background = Color3.fromRGB(25, 25, 25),
-			Topbar = Color3.fromRGB(0, 0, 0), -- Changé en noir pur
+			Topbar = Color3.fromRGB(20, 20, 20), -- Gris très sombre comme demandé
 			Shadow = Color3.fromRGB(20, 20, 20),
 
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
@@ -927,11 +927,12 @@ end
 				-- Rendre la Topbar noire et transparente
 					pcall(function()
 						Topbar.BackgroundTransparency = 0.5 -- Un peu de transparence mais bien noire
-						Topbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Noir
-						if Topbar:FindFirstChild("CornerRepair") then
-							Topbar.CornerRepair.BackgroundTransparency = 0.5
-							Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-						end
+							Topbar.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Gris-Noir
+							if Topbar:FindFirstChild("CornerRepair") then
+								Topbar.BackgroundTransparency = 0.5
+								Topbar.CornerRepair.BackgroundTransparency = 0.5
+								Topbar.CornerRepair.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+							end
 					
 					-- S'assurer que le gris du Main est derrière l'image
 					Main.ZIndex = 0
@@ -999,71 +1000,90 @@ end
 					MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					MainStroke.Transparency = 0.6
 					
-						local NeonGlow = Instance.new("Frame")
-							NeonGlow.Name = "NeonGlow"
-							NeonGlow.Parent = Main
-							NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							NeonGlow.BackgroundTransparency = 1
-							NeonGlow.BorderSizePixel = 0
-							NeonGlow.Size = UDim2.new(0, 150, 0, 3)
-							NeonGlow.ZIndex = 5
-							NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-							
-							local NeonGradient = Instance.new("UIGradient")
-							NeonGradient.Transparency = NumberSequence.new({
-								NumberSequenceKeypoint.new(0, 1),
-								NumberSequenceKeypoint.new(0.5, 0),
-								NumberSequenceKeypoint.new(1, 1)
-							})
-							NeonGradient.Parent = NeonGlow
+							local NeonGlow = Instance.new("Frame")
+								NeonGlow.Name = "NeonGlow"
+								NeonGlow.Parent = Main
+								NeonGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+								NeonGlow.BackgroundTransparency = 1
+								NeonGlow.BorderSizePixel = 0
+								NeonGlow.Size = UDim2.new(0, 150, 0, 4)
+								NeonGlow.ZIndex = 5
+								NeonGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+								
+								local NeonGradient = Instance.new("UIGradient")
+								NeonGradient.Transparency = NumberSequence.new({
+									NumberSequenceKeypoint.new(0, 1),
+									NumberSequenceKeypoint.new(0.5, 0), -- Centre bien lumineux
+									NumberSequenceKeypoint.new(1, 1)
+								})
+								NeonGradient.Parent = NeonGlow
 
-						RunService.RenderStepped:Connect(function()
-							local MousePos = UserInputService:GetMouseLocation()
-							local MainPos = Main.AbsolutePosition
-							local MainSize = Main.AbsoluteSize
-							
-							local RelativeX = MousePos.X - MainPos.X
-							local RelativeY = MousePos.Y - MainPos.Y
-							
-							local Margin = 15
-							local isNearEdge = false
-							
-							-- Calcul des distances aux bords
-							local distLeft = math.abs(RelativeX)
-							local distRight = math.abs(RelativeX - MainSize.X)
-							local distTop = math.abs(RelativeY)
-							local distBottom = math.abs(RelativeY - MainSize.Y)
-							
-							-- Trouver le bord le plus proche
-							local minDist = math.min(distLeft, distRight, distTop, distBottom)
-							
-							if RelativeX >= -Margin and RelativeX <= MainSize.X + Margin and RelativeY >= -Margin and RelativeY <= MainSize.Y + Margin then
-								if minDist <= Margin then
+							RunService.RenderStepped:Connect(function()
+								local MousePos = UserInputService:GetMouseLocation()
+								local MainPos = Main.AbsolutePosition
+								local MainSize = Main.AbsoluteSize
+								
+								-- Ajustement pour le centrage parfait (compensation de l'offset de la barre Roblox si nécessaire)
+								local RelativeX = MousePos.X - MainPos.X
+								local RelativeY = MousePos.Y - MainPos.Y
+								
+								local Margin = 20
+								local CornerRadius = 10
+								local isNearEdge = false
+								
+								-- Vérifier si on est dans les limites avec une marge
+								if RelativeX >= -Margin and RelativeX <= MainSize.X + Margin and RelativeY >= -Margin and RelativeY <= MainSize.Y + Margin then
 									isNearEdge = true
-									if minDist == distLeft then -- Bord gauche
-										NeonGlow.Rotation = 90
-										NeonGlow.Position = UDim2.new(0, 0, 0, RelativeY)
-									elseif minDist == distRight then -- Bord droit
-										NeonGlow.Rotation = 90
-										NeonGlow.Position = UDim2.new(1, 0, 0, RelativeY)
-									elseif minDist == distTop then -- Bord haut
-										NeonGlow.Rotation = 0
-										NeonGlow.Position = UDim2.new(0, RelativeX, 0, 0)
-									elseif minDist == distBottom then -- Bord bas
-										NeonGlow.Rotation = 0
-										NeonGlow.Position = UDim2.new(0, RelativeX, 1, 0)
+									
+									-- Logique de suivi de bord avec coins arrondis
+									local targetX = math.clamp(RelativeX, 0, MainSize.X)
+									local targetY = math.clamp(RelativeY, 0, MainSize.Y)
+									
+									-- Déterminer quel bord ou coin on suit
+									local distLeft = RelativeX
+									local distRight = MainSize.X - RelativeX
+									local distTop = RelativeY
+									local distBottom = MainSize.Y - RelativeY
+									
+									local minDist = math.min(math.abs(distLeft), math.abs(distRight), math.abs(distTop), math.abs(distBottom))
+									
+									if minDist < Margin then
+										-- On est près d'un bord, on aligne la lumière
+										if math.abs(distLeft) == minDist then
+											NeonGlow.Rotation = 90
+											NeonGlow.Position = UDim2.new(0, 0, 0, targetY)
+										elseif math.abs(distRight) == minDist then
+											NeonGlow.Rotation = 90
+											NeonGlow.Position = UDim2.new(1, 0, 0, targetY)
+										elseif math.abs(distTop) == minDist then
+											NeonGlow.Rotation = 0
+											NeonGlow.Position = UDim2.new(0, targetX, 0, 0)
+										elseif math.abs(distBottom) == minDist then
+											NeonGlow.Rotation = 0
+											NeonGlow.Position = UDim2.new(0, targetX, 1, 0)
+										end
+										
+										-- Gestion fluide des coins (arrondi)
+										if (targetX < CornerRadius or targetX > MainSize.X - CornerRadius) and (targetY < CornerRadius or targetY > MainSize.Y - CornerRadius) then
+											-- On est dans un coin, on ajuste la rotation pour suivre l'arrondi
+											local cornerX = (targetX < CornerRadius) and CornerRadius or (MainSize.X - CornerRadius)
+											local cornerY = (targetY < CornerRadius) and CornerRadius or (MainSize.Y - CornerRadius)
+											local angle = math.atan2(targetY - cornerY, targetX - cornerX)
+											NeonGlow.Rotation = math.deg(angle) + 90
+										end
+									else
+										isNearEdge = false
 									end
 								end
-							end
-							
-							if isNearEdge then
-								TweenService:Create(NeonGlow, TweenInfo.new(0.1), {BackgroundTransparency = 0.2}):Play()
-								TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(200, 200, 200), Transparency = 0.3}):Play()
-							else
-								TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-								TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100), Transparency = 0.6}):Play()
-							end
-						end)
+								
+								if isNearEdge then
+									TweenService:Create(NeonGlow, TweenInfo.new(0.05), {BackgroundTransparency = 0.2}):Play()
+									TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(200, 200, 200), Transparency = 0.3}):Play()
+								else
+									TweenService:Create(NeonGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+									TweenService:Create(MainStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100), Transparency = 0.6}):Play()
+								end
+							end)
 
 				-- Rendre l'image visible derrière le chargement
 				local LoadingBackgroundImage = BackgroundImage:Clone()
